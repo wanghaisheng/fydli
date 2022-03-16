@@ -146,4 +146,4 @@ This was designed to scratch an itch, as something *(semi-)* useful to test Netl
 
 ## License
 
-[LICENSE](Jam License).
+Jam License [LICENSE](LICENSE)
