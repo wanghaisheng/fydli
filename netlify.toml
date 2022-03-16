@@ -9,6 +9,14 @@
   command = "npm run build"
   publish = "site"
 
+  # Defining non-sensitive environment variables here is possible e.g
+  # [build.environment]
+  #   PUBLIC_SITE = "true"
+  #   MAIN_PAGE = "makeitshort"
+  #   SHORT_URL_LENGTH = 5
+  #   SHORT_URL_CHARS = "1234567890abcdefABCDEF"
+  #   SITE_TITLE = "FYDLI"
+
 # Using `import` so need `esbuild`
 [functions]
   node_bundler = "esbuild"

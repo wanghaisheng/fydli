@@ -22,7 +22,7 @@ New URLs are added via a single-input form—short codes are automatically gener
 
 ## Configuration
 
-For local development, store the following in a `.env` (or `.env.local`) file in the project root. When deploying to Netlify, configure these [environment variables](https://docs.netlify.com/configure-builds/environment-variables/) in the UI.
+For local development, store the following in a `.env` (or `.env.local`) file in the project root. When deploying to Netlify, configure these [environment variables](https://docs.netlify.com/configure-builds/environment-variables/) in the UI and/or in the `netlify.toml` *(for non-sensitive variables.)*
 
 ### Supabase
 
