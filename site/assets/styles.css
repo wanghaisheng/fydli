@@ -53,6 +53,12 @@ main {
 main#contact {
   min-height: 80vh;
 }
+main#terms {
+  min-height: 80vh;
+  width: 90vw;
+  max-width: 600px;
+  margin: 0 auto;
+}
 /**
  * Basic links
  */
