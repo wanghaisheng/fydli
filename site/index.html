@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Jamstack URL Shortener | FYDLI</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width">
+    <link rel="stylesheet" type="text/css" href="/assets/styles.css">
+    <meta name="robots" content="index, nofollow, noarchive">
+  </head>
+  <body>
+
+    <main>
+
+      <h1>Shorten a URL</h1>
+
+      <form name="shorten">
+        <p>
+          <label>
+            <input type="url" name="long_url" placeholder="https://example.com/a/really/long/url/is-a-pain-to-remember">
+          </label>
+        </p>
+        <p>
+          <button type="submit">Add</button>
+        </p>
+      </form>
+
+      <p id="result"><strong>Tip:</strong> You can add query string parameters to a short URL.</p>
+
+    </main>
+
+    <footer>
+
+      <section>
+        <h3>About FYDLI</h3>
+        <p>FYDLI is a <a href="/jam" title="Jamstack" rel="noopener nofollow">Jamstack</a> URL shortener hosted on <a href="/ntl" title="Netlify" rel="noopener nofollow">Netlify</a>. It is (currently) open to anyone who want to create a link (this may change if the service sees too much abuse.)</p>
+      </section>
+
+      <section>
+        <h3>Short URL Generation</h3>
+        <p>No, the option to choose a short URL is not available. Short URLs are automatically generated using a custom character set that excludes easy-to-confuse characters (such as 1 and l.) Over 600 million combinations are available using a string length of 5 (57^5.)</p>
+      </section>
+
+      <section>
+        <h3>What About The Code!?</h3>
+        <p>Certainly. It's open source <a href="/git" title="GitHub repository" rel="noopener nofollow">here</a>
+      </section>
+
+      <section>
+        <h3>Issues, Abuse, etc...</h3>
+        <p>Have an issue with the site? Open an issue <a href="/issue" title="GitHub repository" rel="noopener nofollow">here</a></p>
+        <p>Found a link that leads to malware, phishing, spam, or other illegal (or questionable) content? Send a message <a href="/contact" title="Contact form" rel="noopener nofollow">here</a>.</p>
+      </section>
+
+      <section class="copyright">
+        <p>&copy; FYDLI | <a href="/license" title="License">Jam License</a> | <a href="/git" title="GitHub Repository">GitHub</a></p>
+      </section>
+
+    </footer>
+
+    <script nonce="9fe3abc61d7a">
+      document.forms.shorten.addEventListener('submit', async (event) => {
+
+        event.preventDefault();
+
+        const form = event.target.elements;
+        const result = document.getElementById('result');
+        result.innerHTML = "Working...";
+
+        fetch("/app/new-link", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            long_url: form.long_url.value
+          })
+        })
+        .then(res => res.json())
+        .then(d => result.innerHTML = d.message)
+        .catch(err => result.innerHTML = err)
+      });
+    </script>
+    
+  </body>
+</html>
