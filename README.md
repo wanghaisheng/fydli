@@ -144,6 +144,10 @@ The HTML pages are basic and minimal by design. There are only two by default. T
 
 This was designed to scratch an itch, as something *(semi-)* useful to test Netlify's Scheduled Functions Beta. This is a *(relatively)* basic, open system ***(free, open, is good.)*** Functions are not protected by default *(see [this thread](https://answers.netlify.com/t/how-to-apply-access-control-for-netlify-functions/46519) on the Netlify Forums for more.)* It is entirely possible *(testing has proven this)* to modify scripts/pages to require sign-up/login using [Netlify Identity](https://docs.netlify.com/visitor-access/identity/) or [Supabase Auth](https://supabase.com/auth) *(or other provider)* to limit users, and hold users accountable for the links they create *(i.e. banning those who use the site for illegal/unethical endeavours.)*
 
+## Links
+
+Link never get deleted, only disabled. This avoids the possibility of re-generating the same short code.
+
 ## License
 
 Jam License [LICENSE](LICENSE)

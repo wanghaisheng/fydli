@@ -1,6 +1,6 @@
 {
   "name": "fydli",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "JAMStack link shortener using Netlify functions and Supabase.",
   "keywords": [
     "link-shortener",

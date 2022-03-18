@@ -220,3 +220,6 @@ footer .copyright p {
     width: 100%;
   }
 }
+.codedel {
+  cursor: pointer;
+}

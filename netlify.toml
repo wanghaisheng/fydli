@@ -48,8 +48,8 @@
     Content-Security-Policy = "base-uri 'self'; script-src 'self' 'nonce-9fe3abc61d7a'; style-src 'self' 'nonce-9fe3abc61d7a'; img-src 'self'; object-src 'self'; frame-ancestors 'none'"
     # Disable refer(r)er
     Referrer-Policy = "no-referrer"
-    # Clear data
-    Clear-Site-Data = '"*"'
+    # Removal of Clear-Site-Data to enable Local Storage
+    # Clear-Site-Data = '"*"'
     X-Robots-Tag = "noindex, nofollow, noarchive, nosnippet, notranslate"
 
 #

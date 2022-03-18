@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Jamstack URL Shortener | FYDLI</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width">
+    <link rel="stylesheet" type="text/css" href="/assets/styles.css">
+    <meta name="robots" content="index, nofollow, noarchive">
+    <!--
+      favicon assest via https://favicon.io
+    -->
+    <link rel="icon" href="/assets/favicon.ico">
+    <link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png">
+    <link rel="manifest" href="/site.webmanifest">
+  </head>
+  <body>
+
+    <main>
+
+      <h1>Delete URLs</h1>
+
+      <section>
+        <table>
+          <tr>
+            <th>Short</th>
+            <th>Long</th>
+            <th>Delete</th>
+          </tr>
+          <tbody id="codelist">
+            <tr id="listloading"><td colspan="3">Loading...</td></tr>
+          </tbody>
+        </table>
+      </section>
+    </main>
+
+    <template id="codeLink">
+      <tr>
+        <td>
+          <a
+            class="codelink"
+            href=""
+          ></a>
+        </td>
+        <td><code></code></td>
+        <td>
+          <a
+            class="codedel"
+            role="button"
+          >X</a>
+        </td>
+      </tr>
+    </template>
+
+    <script nonce="9fe3abc61d7a">
+      //
+      // SPDX-License-Identifier: Jam
+      //
+      
+      // No codes message
+      const noCodesMsg = "No short codes created...";
+      
+      noLinks = () => {
+        const tr = document.createElement('tr');
+        tr.id = "noLinks";
+        const td = document.createElement('td');
+        td.colSpan = 3;
+        td.align = 'center';
+        td.innerText = noCodesMsg;
+        tr.appendChild(td);
+        codelist.appendChild(tr);
+      };
+
+      // link item template
+      const template = document.querySelector('#codeLink');
+      // link list element
+      const codelist = document.querySelector('#codelist');
+      // read userID from storage only create on shortener page; or `null`
+      const fydliID = localStorage.getItem('fydli_user_id');
+
+      // Get list of links from Supabase on page load
+      document.addEventListener("DOMContentLoaded", async () => {
+
+        // If user ID missing
+        if (fydliID === null) {
+          const listloader = document.getElementById('listloading');
+          codelist.removeChild(listloader);
+          noLinks();
+          return false;
+        }
+
+        // Fetch via function
+        const data = await fetch('/app/link-list', {
+          method: "POST",
+          headers: {
+            'Content-Type': "application/json"
+          },
+          // fetches codes based on userId
+          body: JSON.stringify({userId: fydliID})
+        });
+
+        // Result to JSON
+        const res = await data.json();
+
+        // Make sure something exists
+        if (res.length > 0) {
+          
+          // Clear loading text
+          const listloader = document.getElementById('listloading');
+          codelist.removeChild(listloader);
+
+          // Loop through each to display
+          res.forEach((d) => {
+            const code = d.short;
+            const href = d.long
+            // displayCode(d.short, d.long)
+            const container = template.content.cloneNode(true);
+
+            // Add ID to <div> wrapper
+            container.querySelector('tr').id = "code-".concat(code);
+
+            // Short code details
+            const link = container.querySelector('.codelink');
+            link.href = '/'.concat(code);
+            link.innerText = code;
+            
+            // Show the long link too
+            container.querySelector('code').innerText = href;
+
+            // Delete button
+            const del = container.querySelector('.codedel');
+
+            // Add event listener for deletion.
+            del.addEventListener('click', async () => {
+              // Update code in Supabase
+              const response = await fetch('/app/update-code', {
+                method: "POST",
+                body: JSON.stringify({
+                    short: code,
+                    userId: fydliID
+                })
+              });
+
+              // JSON data
+              const data = await response.json();
+
+              // If response is good
+              if (data.updated === true) {
+                // Remove link element from list.
+                const list = document.getElementById('codelist');
+                const item = document.getElementById('code-'.concat(code));
+                list.removeChild(item);
+                // No more links?
+                if (list.children.length === 0) {
+                  list.innerText = noCodesMsg
+                }
+              }
+              // Response bad.
+              else {
+                console.log("Error: ", data.message);
+                alert("Error remove short code.\nCheck console");
+              }
+            });
+
+            // Append node to display element
+            codelist.appendChild(container);
+
+          });
+        }
+        // Display no links message
+        else {
+          noLinks();
+        }
+      });
+
+    </script>
+    
+  </body>
+</html>

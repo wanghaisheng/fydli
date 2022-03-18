@@ -5,9 +5,9 @@
 // SPDX-License-Identifier: Jam
 //
 
-import { createClient } from '@supabase/supabase-js';
+import { createClient } from '@supabase/supabase-js'
 // Use for local testing
-//import 'dotenv/config';
+//import 'dotenv/config'
 
 // Supabase config
 const supabase = createClient(
@@ -19,7 +19,7 @@ const supabase = createClient(
 const baseUrl = process.env.URL;
 
 // Insert long and short to Supabase table
-async function saveToSupabase(long, short) {
+async function saveToSupabase(long, short, userId) {
 
   const {
     data,
@@ -29,6 +29,7 @@ async function saveToSupabase(long, short) {
     .insert({
       short: short,
       long: long,
+      user_id: userId
     })
     .single()
 
@@ -36,8 +37,8 @@ async function saveToSupabase(long, short) {
   if (data !== null) {
     return true;
   }
-  return false;
-};
+  return false
+}
 
 /**
  * Do things...
@@ -47,24 +48,41 @@ exports.handler = async event => {
   /**
    * Basic protection, though easy to bypass.
    */
-   const { headers } = event;
-   if (event.httpMethod !== "POST" ||
-     ( !headers.include("referer") || headers.referer.startsWith(baseUrl) !== true ) ) {
-    return {
-      statusCode: 400,
-      headers: {
-        'Content-Type': 'text/plain',
-        Accept: "POST",
-      },
-      body: "Bad request"
-    };
-  }
+  //  const { headers } = event;
+  //  if (event.httpMethod !== "POST" ||
+  //    ( !headers.include("referer") || headers.referer.startsWith(baseUrl) !== true ) ) {
+  //   return {
+  //     statusCode: 400,
+  //     headers: {
+  //       'Content-Type': 'text/plain',
+  //       Accept: "POST",
+  //     },
+  //     body: "Bad request"
+  //   }
+  // }
   
   // What is the long URL
   const {
-    long_url
+    long_url,
+    userId,
   } = JSON.parse(event.body);
   
+  if (userId === null || userId === undefined || userId === "") {
+
+    return {
+      statusCode: 500,
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        created: false,
+        short_url: null,
+        message: `Oops! Invalid user ID.`
+      })
+    }
+
+  }
+
   // Generate a short code
   const short_code = (() => {
     // User-defined character set || break function
@@ -86,22 +104,22 @@ exports.handler = async event => {
    if (long_url === null || long_url === undefined ||
        long_url === "" || long_url.indexOf('https://') !== 0) {
       
-    return {
-      statusCode: 400,
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        created: false,
-        message: `${long_url} is not valid. Must start with <code>https://</code>.`
-      })
-    };
+      return {
+        statusCode: 400,
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          created: false,
+          message: `${long_url} is not valid. Must start with <code>https://</code>.`
+        })
+      }
   }
   
   /**
    * Save details to Supabase
    */
-  if (await saveToSupabase(long_url, short_code) === true) {
+  if (await saveToSupabase(long_url, short_code, userId) === true) {
 
     return {
       statusCode: 200,
@@ -110,10 +128,11 @@ exports.handler = async event => {
       },
       body: JSON.stringify({
         created: true,
+        code: short_code,
         short_url: `${baseUrl}/${short_code}`,
         message: `Yay! You can now navigate to <code>${long_url}</code> using <a href="${baseUrl}/${short_code}"><code>${baseUrl}/${short_code}</code></a>.`
       })
-    };
+    }
     
   }
 
@@ -131,6 +150,6 @@ exports.handler = async event => {
       short_url: null,
       message: `Oops! There was an error adding <code>${long_url}</code>. Please try again.`
     })
-  };
+  }
 
-};
+}
