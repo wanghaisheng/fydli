@@ -50,14 +50,20 @@ main {
     justify-content: unset;
   }
 }
-main#contact {
+main#contact,
+main#terms,
+main#linklist {
+  min-height: 80vh;
   min-height: 80vh;
 }
 main#terms {
-  min-height: 80vh;
   width: 90vw;
   max-width: 600px;
   margin: 0 auto;
+}
+main#linklist {
+  justify-content: unset;
+  margin-top: 3rem;
 }
 /**
  * Basic links
@@ -220,6 +226,24 @@ footer .copyright p {
     width: 100%;
   }
 }
-.codedel {
+
+/**
+ * Link list
+ */
+#linklist table {
+  width: 90vw;
+  max-width: 800px;
+}
+table th,
+table td {
+  text-align: left;
+}
+#result a,
+#codelist a {
   cursor: pointer;
+}
+caption {
+  margin-bottom: 1rem;
+  font-style: italic;
+  min-height: 2.5rem;
 }

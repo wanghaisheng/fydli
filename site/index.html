@@ -33,26 +33,27 @@
       </form>
 
       <p id="result"><strong>Tip:</strong> You can add query string parameters to a short URL.</p>
-
-      <p><a href="/link-list" title="Manage your links">Manage your links</a></p>
+      
+      <p><a href="/link-list" title="Manage Links">Manage Links</a></p>
 
     </main>
 
     <footer>
 
       <section>
-        <h3>About FYDLI</h3>
-        <p>FYDLI is a <a href="/jam" title="Jamstack" rel="noopener nofollow">Jamstack</a> URL shortener hosted on <a href="/ntl" title="Netlify" rel="noopener nofollow">Netlify</a>. It is (currently) open to anyone who want to create a link (this may change if the service sees too much abuse.)</p>
-      </section>
-
-      <section>
         <h3>Short URL Generation</h3>
         <p>No, the option to choose a short URL is not available. Short URLs are automatically generated using a custom character set that excludes easy-to-confuse characters (such as 1 and l.) Over 600 million combinations are available using a string length of 5 (57^5.)</p>
       </section>
-
+      
       <section>
-        <h3>What About The Code!?</h3>
-        <p>Certainly. It's open source <a href="/git" title="GitHub repository" rel="noopener nofollow">here</a>
+        <h3>Can I Delete/Edit A Link</h3>
+        <p>Deletion is not possible, but disabling is. Disabling a link on the <a href="/link-list" title="Link List">Link List</a> page marks it as <em>disabled</em> in Supabase. This is irreversible and removes it from your link list. It does not delete it as doing so would open the possibly of the same short code being regenerated.</p>
+        <p>Editing is not possible. Disable the link and make another.</p>
+      </section>
+      
+      <section>
+        <h3>About FYDLI</h3>
+        <p>FYDLI is a <a href="/jam" title="Jamstack" rel="noopener nofollow">Jamstack</a> URL shortener hosted on <a href="/ntl" title="Netlify" rel="noopener nofollow">Netlify</a> with data stored in <a href="/sb" title="Supabase">Supabase</a>. It is (currently) open to anyone who wants to create a link (this may change if the service sees too much abuse.)</p>
       </section>
 
       <section>
@@ -71,7 +72,7 @@
       //
       // SPDX-License-Identifier: Jam
       //
-      
+
       const fydliID = (() => {
         const id = localStorage.getItem('fydli_user_id');
         if (id === null) {
@@ -101,7 +102,30 @@
           })
         })
         .then(res => res.json())
-        .then(d => result.innerHTML = d.message)
+        .then(d => {
+          result.innerHTML = `Copy to clipboard: <a>${d.short_url}</a>`;
+          // Copy to clipboard event listener
+          result.querySelector('a').addEventListener('click', (e) => {
+            // Link
+            const link = e.target.innerText;
+            // Parent element
+            const pe = e.target.parentElement;
+            // Wrap in a try/catch in the off chance clipboard events disabled
+            try {
+              // Write to clipboard
+              navigator.clipboard.writeText(link)
+              .then(res=>{
+                // Write success message to parent element
+                pe.innerHTML = `<strong>${link}</strong> copied to clipboard successfully`;
+              });
+            }
+            // Clipboard events unavailable
+            catch(err) {
+              alert(`Unable to copy ${link} to clipboard.`);
+              console.log(err);
+            }
+          });
+        })
         .catch(err => result.innerHTML = err)
       });
     </script>

@@ -21,6 +21,8 @@
 
       <h1>Contact</h1>
 
+      <section><a href="/" title="Home">&laquo; Home</a></section>
+
       <form name="contact">
         <p>
           <label>Name:<br>
@@ -49,8 +51,6 @@
 
       <p id="result">&nbsp;</p>
 
-      <section><a href="/" title="Home">&laquo; Home</a></section>
-
     </main>
 
     <footer>
@@ -62,12 +62,8 @@
     </footer>
 
     <script nonce="9fe3abc61d7a">
-      //
-      // SPDX-License-Identifier: Jam
-      //
-
       document.forms.contact.addEventListener('submit', async (event) => {
-        
+
         event.preventDefault();
 
         const formData = new FormData(event.target);
@@ -91,6 +87,6 @@
         .catch(err => result.innerHTML = err)
       });
     </script>
-    
+
   </body>
 </html>

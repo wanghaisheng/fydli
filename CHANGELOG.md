@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## v0.2.1
+
+Adds "copy to clipboard" functionality on the link creation and manage links pages *(thanks to Jessica @ Netlify for suggesting the addition [here](https://fyd.li/vyhL))* along with visual feedback *(i.e. text notification)* for this action. Visual feedback extended to the disable link functionality also.
+
+`link-list.html` -> `manage.html`
+
+Manage links page changed to remove the word *"delete"* with better information about what happens with disabling of links (on page and in main page footer.)
+
+Other minor styling changes.
+
 ## v0.2.0
 
 This version adds the ability for the link creator to remove links from service without sign up / log in. This keeps the service anonymous as no personal details *(i.e. name, email address)* are ever known or stored.

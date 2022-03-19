@@ -17,17 +17,22 @@
   </head>
   <body>
 
-    <main>
+    <main id="linklist">
 
-      <h1>Delete URLs</h1>
+      <h1>Manage Links</h1>
 
+      <section><p><a href="/" title="Home">&laquo; Home</a></p></section>
+      
       <section>
         <table>
-          <tr>
-            <th>Short</th>
-            <th>Long</th>
-            <th>Delete</th>
-          </tr>
+          <caption>Click short code to copy to clipboard. Click long URL to visit using short link. Disabling short code is <strong>irreversible.</strong></caption>
+          <thead>
+            <tr>
+              <th>Short</th>
+              <th>Long</th>
+              <th>Disable</th>
+            </tr>
+          </thead>
           <tbody id="codelist">
             <tr id="listloading"><td colspan="3">Loading...</td></tr>
           </tbody>
@@ -35,20 +40,28 @@
       </section>
     </main>
 
+    <footer>
+
+      <section class="copyright">
+        <p>&copy; FYDLI | <a href="/license" title="License">Jam License</a> | <a href="/git" title="GitHub Repository">GitHub</a> | <a href="/terms" title="Terms of Use">Terms</a></p>
+      </section>
+
+    </footer>
+
     <template id="codeLink">
       <tr>
         <td>
           <a
-            class="codelink"
-            href=""
-          ></a>
+            class="shortcode"
+            role="link"
+          ><code></code></a>
         </td>
-        <td><code></code></td>
+        <td><a class="visitlink" href="" target="_blank"><code></code></a></td>
         <td>
           <a
-            class="codedel"
+            class="delcode"
             role="button"
-          >X</a>
+          ><code>X</code></a>
         </td>
       </tr>
     </template>
@@ -57,10 +70,14 @@
       //
       // SPDX-License-Identifier: Jam
       //
-      
+
       // No codes message
       const noCodesMsg = "No short codes created...";
-      
+      // Default caption text
+      const captionText = "Click short code to copy to clipboard. Click long URL to visit using short link. Disabling short code is <strong>irreversible.</strong>";
+      // Site URL
+      const siteUrl = "https://fyd.li"
+
       noLinks = () => {
         const tr = document.createElement('tr');
         tr.id = "noLinks";
@@ -71,18 +88,17 @@
         tr.appendChild(td);
         codelist.appendChild(tr);
       };
-
       // link item template
       const template = document.querySelector('#codeLink');
       // link list element
       const codelist = document.querySelector('#codelist');
-      // read userID from storage only create on shortener page; or `null`
+      // read userID from storage only create on shortener page
       const fydliID = localStorage.getItem('fydli_user_id');
 
       // Get list of links from Supabase on page load
       document.addEventListener("DOMContentLoaded", async () => {
 
-        // If user ID missing
+        // If user ID missing do nothing further
         if (fydliID === null) {
           const listloader = document.getElementById('listloading');
           codelist.removeChild(listloader);
@@ -96,11 +112,11 @@
           headers: {
             'Content-Type': "application/json"
           },
-          // fetches codes based on userId
+          // fetches codes based on userId; fails if missing
           body: JSON.stringify({userId: fydliID})
         });
 
-        // Result to JSON
+        // Result as JSON
         const res = await data.json();
 
         // Make sure something exists
@@ -108,6 +124,7 @@
           
           // Clear loading text
           const listloader = document.getElementById('listloading');
+          // Removing loading text
           codelist.removeChild(listloader);
 
           // Loop through each to display
@@ -117,23 +134,59 @@
             // displayCode(d.short, d.long)
             const container = template.content.cloneNode(true);
 
-            // Add ID to <div> wrapper
+            // Add ID to <tr> for delete button
             container.querySelector('tr').id = "code-".concat(code);
 
             // Short code details
-            const link = container.querySelector('.codelink');
-            link.href = '/'.concat(code);
-            link.innerText = code;
+            const short = container.querySelector('.shortcode');
+            // link.href = '/'.concat(code);
+            short.dataset.shortCode = code;
+            short.querySelector('code').innerText = code;
+
+            // Copy to clipboard function
+            short.addEventListener('click', () => {
+              // The short link
+              const sl = `${siteUrl}/${code}`;
+              // Wrap in a try/catch in the off chance clipboard events disabled
+              try {
+                // Write to clipboard
+                navigator.clipboard.writeText(sl).then(res => {
+
+                  // Display success message
+                  const msg = `<strong>${sl}</strong> copied to clipboard successfully`;
+                  const caption = document.querySelector('caption');
+                  caption.innerHTML = msg;
+
+                  // Clear message, write default caption text again
+                  setTimeout(() => {
+                    caption.innerHTML = captionText;
+                  }, 1500);
+
+                });
+              }
+              catch(err) {
+                alert(`Unable to copy ${sl} to clipboard.`);
+                console.log(err);
+              }
+            });
             
-            // Show the long link too
-            container.querySelector('code').innerText = href;
+            // Show the long link too; visit using short URL
+            const visit = container.querySelector('.visitlink');
+            visit.href = `${siteUrl}/${code}`;
+            visit.querySelector('code').innerText = href;
 
             // Delete button
-            const del = container.querySelector('.codedel');
+            const del = container.querySelector('.delcode');
+            del.dataset.shortCode = code;
 
-            // Add event listener for deletion.
+            // Add a delete button
             del.addEventListener('click', async () => {
-              // Update code in Supabase
+              // For UI feedback
+              const successMsg = `<strong>${code}</strong> successfully disabled.`;
+              const failMsg = `Error disabling <strong>${code}</strong>.`;
+              const caption = document.querySelector('caption');
+
+              // Send request to Supabase
               const response = await fetch('/app/update-code', {
                 method: "POST",
                 body: JSON.stringify({
@@ -151,6 +204,8 @@
                 const list = document.getElementById('codelist');
                 const item = document.getElementById('code-'.concat(code));
                 list.removeChild(item);
+                // Display success message
+                caption.innerHTML = successMsg;
                 // No more links?
                 if (list.children.length === 0) {
                   list.innerText = noCodesMsg
@@ -158,9 +213,15 @@
               }
               // Response bad.
               else {
+                // Display error message
                 console.log("Error: ", data.message);
-                alert("Error remove short code.\nCheck console");
+                caption.innerHTML = failMsg;
               }
+
+              // Clear message, write default caption text again
+              setTimeout(() => {
+                caption.innerHTML = captionText;
+              }, 1500);
             });
 
             // Append node to display element
@@ -173,7 +234,6 @@
           noLinks();
         }
       });
-
     </script>
     
   </body>
