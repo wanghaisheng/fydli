@@ -1,3 +1,10 @@
+//
+// link-list.js
+// - Retrieve user's links
+//
+// SPDX-License-Identifier: Jam
+//
+
 import { createClient } from '@supabase/supabase-js'
 
 const supabase = createClient(
@@ -7,13 +14,6 @@ const supabase = createClient(
 
 exports.handler = async (event) => {
   
-  // if (!context.clientContext.user) {
-  //   return {
-  //     statusCode: 401,
-  //     body: "Unauthorized"
-  //   }
-  // }
-
   if (event.httpMethod !== "POST") {
     return {
       statusCode: 405,
