@@ -74,12 +74,35 @@
       //
 
       const fydliID = (() => {
-        const id = localStorage.getItem('fydli_user_id');
+        // read user ID
+        let id = localStorage.getItem('fydli_user_id');
+        // ID does not exist
         if (id === null) {
-          const newId = crypto.randomUUID();
-          localStorage.setItem('fydli_user_id', newId);
-          return newId;
+          // randomUUID is a function
+          if (typeof crypto.randomUUID === "function") {
+            const newId = crypto.randomUUID();
+            localStorage.setItem('fydli_user_id', newId);
+            // assign ID
+            id = newId;
+          }
+          // randomUUID isn't a function (i.e. Safari < 15.4)
+          else {
+            try {
+              // try fetching from function
+              fetch('/.netlify/functions/new-uuid')
+                .then(res => res.text())
+                .then(uuid => {
+                  localStorage.setItem('fydli_user_id', uuid)
+                })
+              // assign ID
+              id = localStorage.getItem('fydli_user_id');
+            } catch(err) {
+              // log error
+              console.log(err)
+            }
+          }
         }
+        // return ID
         return id;
       })();
 

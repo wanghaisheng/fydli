@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v0.2.2
+
+Safari < 15.4 does not support `crypto.randomUUID()` *(is in development in 15.4 see [MDN `Crypto.randomUUID`](https://fyd.li/zPLa).)* This breaks functionality of the site on a large number of macOS and iOS devices. `fydliID` will now retrieve a UUID from a function when `typeof crypto.randomUUID === "function"` is `false`. This *(potentially)* opens access to many more users.
+
 ## v0.2.1
 
 Adds "copy to clipboard" functionality on the link creation and manage links pages *(thanks to Jessica @ Netlify for suggesting the addition [here](https://fyd.li/vyhL))* along with visual feedback *(i.e. text notification)* for this action. Visual feedback extended to the disable link functionality also.
