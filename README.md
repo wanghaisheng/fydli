@@ -149,4 +149,4 @@ Link never get deleted, only disabled. This avoids the possibility of re-generat
 
 ## License
 
-Jam License [LICENSE](LICENSE)
+[Jam License](LICENSE).

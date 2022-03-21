@@ -107,12 +107,12 @@ exports.handler = async (event) => {
    * 
    * Example:
    * Long:   https://example.com?some=value&and=another
-   * Short:  https://siq.lig/short?this=value&that=thing
+   * Short:  https://fyd.lig/short?this=value&that=thing
    * Redirects to: https://example.com?some=value&and=another
    * 
    * Example:
    * Long:   https://example.com
-   * Short:  https://siq.lig/short?some=value&and=another&this=value&that=thing
+   * Short:  https://fyd.li/short?some=value&and=another&this=value&that=thing
    * Redirects to: https://example.com?some=value&and=another&this=value&that=thing
    * 
    * It is possible to append query strings, but this requires defining them in
@@ -121,7 +121,7 @@ exports.handler = async (event) => {
    * /short   some=:q and=:a   https://example.com?some=:q&and=:a
    * 
    * such that
-   * https://siq.li/short?some=thing&and=another
+   * https://fyd.li/short?some=thing&and=another
    * is redirected to
    * https://example.com/?some=thing&and=another
    * 
