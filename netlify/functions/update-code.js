@@ -36,7 +36,6 @@ exports.handler = async (event) => {
   // Short URL to update
   const { short, userId } = JSON.parse(event.body);
 
-  // console.log(short, ' : ', userId);
   const {
     data,
     error
