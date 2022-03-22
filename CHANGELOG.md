@@ -1,5 +1,38 @@
 # CHANGELOG
 
+## v0.3.0
+
+Big changes.
+
+### In Short...
+
+- Removed `build-redirects.mjs` and import from `build-site.mjs`;
+- Removed `rebuild-redirects.js` and scheduled function configuration from `netlify.toml`;
+- Fixed issue with shortener form where null short code could get returned;
+- Creation time shown on manage page; `link-list.js` modified to return `created_at` from Supabase; fixed table width CSS;
+- Added `/test` rewrite along with `test.js` function;
+
+### No more `_redirects` or rebuilding
+
+Remove need for `_redirects` file and scheduled `rebuild-redirects.js` function, by passing everything through to the `redir.js` function *(unless it is an existing path.)* This means:
+
+- Immediate disabling of a short code *(no waiting for rebuild to remove from `_redirects`);*
+- Additional query parameters on a link that has search query parameters already e.g.    
+  `/sh0rt -> https://example.com/?some=thing`    
+  `/sh0rt?and=this -> https://example.com/?some=thing&and=this`
+
+While the addition of query string parameters is possible when using `_redirects`, using a function alone is more streamlined and offers the ability to change a query string value in addition to appending values.
+
+### Query Strings
+
+Previously, if the long URL was `https://example.com?some=thing` any query parameters on the short URL *(**e.g.** `/sh0rt?from=me`)* were dropped. By running redirects through a function, there is the opportunity to set/append these parameters.
+
+For instance, using `/sh0rt` to redirect to `https://example.com/?from=nobody&to=nobody` adding the parameter `/sh0rt?going=nowhere` would result in redirecting to `https://example.com/?from=nobody&to=nobody&going=nowhere`. But you can change the default using `/sh0rt?from=me&to=you&going=home` which results in redirecting to `https://example.com/?from=me&to=you&going=home`. This makes a link potentially more useful and long-lived.
+
+### Test a Redirect
+
+Added `test.js` for testing URL redirect (with query string parameters) to test what will happen with a URL without the actual redirect. To use, prepend `/test` to a short code *(**e.g.** for `sh0rt` use `/test/sh0rt`)* add any query string *(**e.g.** `/test/sh0rt?something=cool`.)*
+
 ## v0.2.2
 
 Safari < 15.4 does not support `crypto.randomUUID()` *(is in development in 15.4 see [MDN `Crypto.randomUUID`](https://fyd.li/zPLa).)* This breaks functionality of the site on a large number of macOS and iOS devices. `fydliID` will now retrieve a UUID from a function when `typeof crypto.randomUUID === "function"` is `false`. This *(potentially)* opens access to many more users.
