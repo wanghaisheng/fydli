@@ -116,6 +116,26 @@ exports.handler = async event => {
   }
   
   /**
+   * Don't try shortening a short link
+   */
+   const domain = baseUrl.replace(/https?:\/\//,'')
+   if (long_url.includes(domain)) {
+ 
+     return {
+       statusCode: 400,
+       headers: {
+         'Content-Type': 'application/json'
+       },
+       body: JSON.stringify({
+         created: false,
+         short_url: null,
+         message: `URL must not contain <code>${domain}</code>.`
+       })
+     }
+ 
+   }
+ 
+   /**
    * Save details to Supabase
    */
   if (await saveToSupabase(long_url, short_code, userId) === true) {
