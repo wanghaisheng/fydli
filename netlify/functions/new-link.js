@@ -110,6 +110,7 @@ exports.handler = async event => {
         },
         body: JSON.stringify({
           created: false,
+          short_url: null,
           message: `${long_url} is not valid. Must start with <code>https://</code>.`
         })
       }
