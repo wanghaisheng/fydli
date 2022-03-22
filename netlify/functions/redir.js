@@ -56,7 +56,6 @@ exports.handler = async (event) => {
   const {
     path,
     queryStringParameters,
-    rawQuery
   } = event;
   
   // Remove leading /
@@ -64,8 +63,6 @@ exports.handler = async (event) => {
   
   // Get details
   const urlDetails = await getUrlDetails(short);
-
-  // console.log(urlDetails)
 
   /**
    * Return error page
@@ -96,61 +93,32 @@ exports.handler = async (event) => {
     };
   }
 
-  /**
-   * Re: `toUrl`
-   * 
-   * This mimics (as best possible), the behaviour of redirects on Netlify.
-   * If the long URL contains a search string, any search string appended to
-   * the short URL is dropped. If a long URL does not contain a search string
-   * any search string on the short URL is appended to the long URL prior to
-   * redirecting.
-   * 
-   * Example:
-   * Long:   https://example.com?some=value&and=another
-   * Short:  https://fyd.lig/short?this=value&that=thing
-   * Redirects to: https://example.com?some=value&and=another
-   * 
-   * Example:
-   * Long:   https://example.com
-   * Short:  https://fyd.li/short?some=value&and=another&this=value&that=thing
-   * Redirects to: https://example.com?some=value&and=another&this=value&that=thing
-   * 
-   * It is possible to append query strings, but this requires defining them in
-   * the _redirects file e.g.
-   * 
-   * /short   some=:q and=:a   https://example.com?some=:q&and=:a
-   * 
-   * such that
-   * https://fyd.li/short?some=thing&and=another
-   * is redirected to
-   * https://example.com/?some=thing&and=another
-   * 
-   * If these query strings are present on the short URL, the redirect will in
-   * turn fail because they are required conditions.
-   * 
-   * While it is possible to have `toUrl` account for these and the build script
-   * to generate these rules (and alternate rules for when they fail) it also
-   * requires a more complex form and function for submitting links. This I have
-   * made (and use) elsewhere, but for the purposes of this site, I feel keeping
-   * things simple is best.
-   * 
-   * Best practice: Don't submit a long URL that has a search string to allow
-   *     adding search strings to a short URL that will work.
-   */
+  // Determine/Build URL to redirect to
   const toUrl = (() => {
 
-    // Original long URL does not have a search string in it
-    if (!urlDetails.long.includes('?') && rawQuery.length > 0) {
+    const url = new URL(long);
 
-      // Append rawQuerty to long URL
-      return long.concat('?', rawQuery);
-
+    // Short URL has search parameters
+    // e.g. fyd.li/sh0rt?some=thing&and=this
+    if (Object.keys(queryStringParameters).length > 0) {
+      
+      Object.keys(queryStringParameters).forEach(key => {
+        
+        // Possible to modify default key/value pairs
+        if (url.searchParams.has(key)) {
+          url.searchParams.set(key, queryStringParameters[key])
+        }
+        // Append additional key/value pairs
+        else {
+          url.searchParams.append(key, queryStringParameters[key])
+        }
+      })
     }
 
-    // There is a search in the original long URL
-    return long;
+    // Return the url string
+    return url.href;
 
-  })({ long } = urlDetails, queryStringParameters, rawQuery);
+  })({ long } = urlDetails, queryStringParameters);
 
   /**
    * Return with location header
@@ -164,7 +132,7 @@ exports.handler = async (event) => {
     body: `<!DOCTYPE html>
     <html lang="en">
       <head>
-        <title>Redirection... | ${process.env.SITE_TITLE}</title>
+        <title>Redirecting... | ${process.env.SITE_TITLE}</title>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width">
         <link rel="stylesheet" type="text/css" href="/assets/styles.css">
