@@ -21,13 +21,6 @@
 [functions]
   node_bundler = "esbuild"
 
-  [functions."rebuild-redirects"]
-    # Other options are @hourly, @daily, @monthly, @yearly
-    # As scheduled functions are new, there is the possibility these options
-    # will change.
-    # See: https://github.com/netlify/labs/tree/main/features/scheduled-functions/documentation
-    schedule = "@weekly"
-
 # Local testing
 [dev]
   # Would prefer if false was the default!
@@ -46,10 +39,7 @@
     X-Frame-Options = "DENY"
     X-XSS-Protection = "1; mode=block"
     Content-Security-Policy = "base-uri 'self'; script-src 'self' 'nonce-9fe3abc61d7a'; style-src 'self' 'nonce-9fe3abc61d7a'; img-src 'self'; object-src 'self'; frame-ancestors 'none'"
-    # Disable refer(r)er
-    Referrer-Policy = "no-referrer"
-    # Removal of Clear-Site-Data to enable Local Storage
-    # Clear-Site-Data = '"*"'
+    Referrer-Policy = "same-origin"
     X-Robots-Tag = "noindex, nofollow, noarchive, nosnippet, notranslate"
 
 #
@@ -77,16 +67,3 @@
   from = "/*"
   to = "/.netlify/functions/redir"
   status = 200
-
-# When site isn't public if you do not wish to utilise this `redir` function,
-# other options are to create a 404.html replacing the above redirect with e.g.
-# [[redirects]]
-#   from = "/*"
-#   to = "/404"
-#   status = 404
-#
-# Or have everything else redirect to your main site e.g.
-# [[redirects]]
-#   from = "/*"
-#   to = "https://example.com/?utm_source=shortener&utm_medium=invalid-link"
-#   status = 301
