@@ -14,9 +14,6 @@ const supabase = createClient(
   process.env.SUPABASE_KEY, // Public key
 );
 
-// Without slash at end e.g. https://example.com
-const baseUrl = process.env.URL;
-
 /**
  * Main function
  */
