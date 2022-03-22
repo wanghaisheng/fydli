@@ -126,28 +126,33 @@
         })
         .then(res => res.json())
         .then(d => {
-          result.innerHTML = `Copy to clipboard: <a>${d.short_url}</a>`;
-          // Copy to clipboard event listener
-          result.querySelector('a').addEventListener('click', (e) => {
-            // Link
-            const link = e.target.innerText;
-            // Parent element
-            const pe = e.target.parentElement;
-            // Wrap in a try/catch in the off chance clipboard events disabled
-            try {
-              // Write to clipboard
-              navigator.clipboard.writeText(link)
-              .then(res=>{
-                // Write success message to parent element
-                pe.innerHTML = `<strong>${link}</strong> copied to clipboard successfully`;
-              });
-            }
-            // Clipboard events unavailable
-            catch(err) {
-              alert(`Unable to copy ${link} to clipboard.`);
-              console.log(err);
-            }
-          });
+          if (d.created === true){
+            result.innerHTML = `Copy to clipboard: <a>${d.short_url}</a>`;
+            // Copy to clipboard event listener
+            result.querySelector('a').addEventListener('click', (e) => {
+              // Link
+              const link = e.target.innerText;
+              // Parent element
+              const pe = e.target.parentElement;
+              // Wrap in a try/catch in the off chance clipboard events disabled
+              try {
+                // Write to clipboard
+                navigator.clipboard.writeText(link)
+                .then(res=>{
+                  // Write success message to parent element
+                  pe.innerHTML = `<strong>${link}</strong> copied to clipboard successfully`;
+                });
+              }
+              // Clipboard events unavailable
+              catch(err) {
+                alert(`Unable to copy ${link} to clipboard.`);
+                console.log(err);
+              }
+            });
+          }
+          else {
+            result.innerHTML = d.message;
+          }
         })
         .catch(err => result.innerHTML = err)
       });
