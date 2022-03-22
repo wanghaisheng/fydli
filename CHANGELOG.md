@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## v0.3.1
+
+Removal of `test.js` and ability to add query paramaters *(**e.g.** `?this=thing&that=too`)* onto short URLs. Any parameters appended to a short code are now dropped and the original long URL is used.
+
+### Why
+
+Changing the location a short code points to is not *(and there are no plans to make it)* a feature of FYDLI. Disabling is currently the only option. So having the ability to append, and even change, the query string parameters when redirecting goes again this. Thus the *(very short-lived)* feature is removed.
+
 ## v0.3.0
 
 Big changes.
