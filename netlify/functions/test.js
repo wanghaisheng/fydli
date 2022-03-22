@@ -87,6 +87,7 @@ exports.handler = async (event) => {
           <main>
             <h1>${process.env.SITE_TITLE}</h1>
             <p>Oops! <strong>/${short}</strong> isn't a valid URL.</p>
+            <p><a href="/" title="Home">&laquo; Home</a></p>
           </main>
         </body>
       </html>`
@@ -131,7 +132,7 @@ exports.handler = async (event) => {
     body: `<!DOCTYPE html>
     <html lang="en">
       <head>
-        <title>Redirection... | ${process.env.SITE_TITLE}</title>
+        <title>Redirection Test... | ${process.env.SITE_TITLE}</title>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width">
         <link rel="stylesheet" type="text/css" href="/assets/styles.css">
@@ -140,7 +141,8 @@ exports.handler = async (event) => {
         <main>
           <h1>${process.env.SITE_TITLE}</h1>
           <p><strong>/${short}${ (rawQuery) ? '?'.concat(rawQuery):'' }</strong><br>redirects to<br><code>${toUrl}</code>.</p>
-        </main>
+          <p><a href="/" title="Home">&laquo; Home</a></p>
+          </main>
       </body>
     </html>`
   }
