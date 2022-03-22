@@ -10,14 +10,8 @@ import fs from 'fs';
 // Use for local testing
 // import 'dotenv/config';
 
-// Import build function
-import { buildRedirects } from "./build-redirects.mjs";
-
 // If `site` directory is renamed, change this.
 const outDir = "site";
-
-// Run the various scripts
-buildRedirects(outDir);
 
 // If PUBLIC_SITE is not explicitly `"true"`, assume a private site
 // and ename `index.html` to either specified filename or random name.
