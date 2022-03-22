@@ -48,18 +48,17 @@ exports.handler = async event => {
   /**
    * Basic protection, though easy to bypass.
    */
-  //  const { headers } = event;
-  //  if (event.httpMethod !== "POST" ||
-  //    ( !headers.include("referer") || headers.referer.startsWith(baseUrl) !== true ) ) {
-  //   return {
-  //     statusCode: 400,
-  //     headers: {
-  //       'Content-Type': 'text/plain',
-  //       Accept: "POST",
-  //     },
-  //     body: "Bad request"
-  //   }
-  // }
+   const { headers } = event;
+   if (event.httpMethod !== "POST") {
+    return {
+      statusCode: 400,
+      headers: {
+        'Content-Type': 'text/plain',
+        Accept: "POST",
+      },
+      body: "Bad request"
+    }
+  }
   
   // What is the long URL
   const {
