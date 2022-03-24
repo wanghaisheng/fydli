@@ -48,19 +48,18 @@ exports.handler = async event => {
   /**
    * Basic protection, though easy to bypass.
    */
-  //  const { headers } = event;
-  //  if (event.httpMethod !== "POST" ||
-  //    ( !headers.include("referer") || headers.referer.startsWith(baseUrl) !== true ) ) {
-  //   return {
-  //     statusCode: 400,
-  //     headers: {
-  //       'Content-Type': 'text/plain',
-  //       Accept: "POST",
-  //     },
-  //     body: "Bad request"
-  //   }
-  // }
-  
+   const { headers } = event;
+   if (event.httpMethod !== "POST") {
+    return {
+      statusCode: 400,
+      headers: {
+        'Content-Type': 'text/plain',
+        Accept: "POST",
+      },
+      body: "Bad request"
+    }
+  }
+
   // What is the long URL
   const {
     long_url,
@@ -83,6 +82,49 @@ exports.handler = async event => {
 
   }
 
+  /**
+   * Check long URL validity
+   * Reject null, empty string and any non-https URL
+   */
+   if (long_url === null || long_url === undefined ||
+       long_url === "" || long_url.startsWith('https://') !== true) {
+      
+      return {
+        statusCode: 400,
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          created: false,
+          short_url: null,
+          message: `${long_url} is not valid. Must start with <code>https://</code>.`
+        })
+      }
+  }
+  
+  /**
+   * Don't try shortening a short link, or link on block list (if defined)
+   */
+  const domain = long_url.replace(/https:\/\//,'').split('/')[0];
+
+  if (baseUrl.includes(domain) ||
+      (process.env.BLOCK_DOMAINS !== undefined &&
+      process.env.BLOCK_DOMAINS.split(',').find(d => d === domain))) {
+
+    return {
+      statusCode: 400,
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        created: false,
+        short_url: null,
+        message: `Invalid domain <code>${domain}</code>`
+      })
+    }
+
+  }
+
   // Generate a short code
   const short_code = (() => {
     // User-defined character set || break function
@@ -97,26 +139,7 @@ exports.handler = async event => {
   })();
   // Yes, could give the user greater power over choosing a short URL.
   
-  /**
-   * Check long URL validity
-   * Reject null, empty string and any non-https URL
-   */
-   if (long_url === null || long_url === undefined ||
-       long_url === "" || long_url.indexOf('https://') !== 0) {
-      
-      return {
-        statusCode: 400,
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          created: false,
-          message: `${long_url} is not valid. Must start with <code>https://</code>.`
-        })
-      }
-  }
-  
-  /**
+   /**
    * Save details to Supabase
    */
   if (await saveToSupabase(long_url, short_code, userId) === true) {

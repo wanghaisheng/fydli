@@ -32,9 +32,9 @@
         </p>
       </form>
 
-      <p id="result"><strong>Tip:</strong> You can add query string parameters to a short URL.</p>
+      <p id="result"><strong>Notice:</strong> Local Storage is used for your unique ID to manage links.</p>
       
-      <p><a href="/link-list" title="Manage Links">Manage Links</a></p>
+      <p><a href="/manage" title="Manage Links">Manage Links</a></p>
 
     </main>
 
@@ -47,7 +47,7 @@
       
       <section>
         <h3>Can I Delete/Edit A Link</h3>
-        <p>Deletion is not possible, but disabling is. Disabling a link on the <a href="/link-list" title="Link List">Link List</a> page marks it as <em>disabled</em> in Supabase. This is irreversible and removes it from your link list. It does not delete it as doing so would open the possibly of the same short code being regenerated.</p>
+        <p>Deletion is not possible, but disabling is. Disabling a link on the <a href="/manage" title="Manage Links">Link List</a> page marks it as <em>disabled</em> in Supabase. This is irreversible and removes it from your link list. It does not delete it as doing so would open the possibly of the same short code being regenerated.</p>
         <p>Editing is not possible. Disable the link and make another.</p>
       </section>
       
@@ -126,28 +126,33 @@
         })
         .then(res => res.json())
         .then(d => {
-          result.innerHTML = `Copy to clipboard: <a>${d.short_url}</a>`;
-          // Copy to clipboard event listener
-          result.querySelector('a').addEventListener('click', (e) => {
-            // Link
-            const link = e.target.innerText;
-            // Parent element
-            const pe = e.target.parentElement;
-            // Wrap in a try/catch in the off chance clipboard events disabled
-            try {
-              // Write to clipboard
-              navigator.clipboard.writeText(link)
-              .then(res=>{
-                // Write success message to parent element
-                pe.innerHTML = `<strong>${link}</strong> copied to clipboard successfully`;
-              });
-            }
-            // Clipboard events unavailable
-            catch(err) {
-              alert(`Unable to copy ${link} to clipboard.`);
-              console.log(err);
-            }
-          });
+          if (d.created === true){
+            result.innerHTML = `Copy to clipboard: <a>${d.short_url}</a>`;
+            // Copy to clipboard event listener
+            result.querySelector('a').addEventListener('click', (e) => {
+              // Link
+              const link = e.target.innerText;
+              // Parent element
+              const pe = e.target.parentElement;
+              // Wrap in a try/catch in the off chance clipboard events disabled
+              try {
+                // Write to clipboard
+                navigator.clipboard.writeText(link)
+                .then(res=>{
+                  // Write success message to parent element
+                  pe.innerHTML = `<strong>${link}</strong> copied to clipboard successfully`;
+                });
+              }
+              // Clipboard events unavailable
+              catch(err) {
+                alert(`Unable to copy ${link} to clipboard.`);
+                console.log(err);
+              }
+            });
+          }
+          else {
+            result.innerHTML = d.message;
+          }
         })
         .catch(err => result.innerHTML = err)
       });
