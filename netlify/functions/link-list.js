@@ -31,7 +31,7 @@ exports.handler = async (event) => {
     error
   } = await supabase
     .from(process.env.SUPABASE_TABLE)
-    .select('user_id, short, long, disabled')
+    .select('user_id, short, long, created_at, disabled')
     .match({user_id: userId})
     .is('disabled', false)
     .order('id', { ascending: false } )

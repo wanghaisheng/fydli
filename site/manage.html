@@ -30,6 +30,7 @@
             <tr>
               <th>Short</th>
               <th>Long</th>
+              <th>Created</th>
               <th>Disable</th>
             </tr>
           </thead>
@@ -57,6 +58,7 @@
           ><code></code></a>
         </td>
         <td><a class="visitlink" href="" target="_blank"><code></code></a></td>
+        <td class="createtime"></td>
         <td>
           <a
             class="delcode"
@@ -74,7 +76,7 @@
       // No codes message
       const noCodesMsg = "No short codes created...";
       // Default caption text
-      const captionText = "Click short code to copy to clipboard. Click long URL to visit using short link. Disabling short code is <strong>irreversible.</strong>";
+      const captionText = "Click short code to copy to clipboard. Click long URL to visit using short link.<br><em>Disabling short code is <strong>irreversible.</strong></em>";
       // Site URL
       const siteUrl = "https://fyd.li"
 
@@ -82,9 +84,9 @@
         const tr = document.createElement('tr');
         tr.id = "noLinks";
         const td = document.createElement('td');
-        td.colSpan = 3;
+        td.colSpan = 4;
         td.align = 'center';
-        td.innerText = noCodesMsg;
+        td.innerHTML = noCodesMsg;
         tr.appendChild(td);
         codelist.appendChild(tr);
       };
@@ -98,9 +100,10 @@
       // Get list of links from Supabase on page load
       document.addEventListener("DOMContentLoaded", async () => {
 
+        const listloader = document.getElementById('listloading');
+
         // If user ID missing do nothing further
         if (fydliID === null) {
-          const listloader = document.getElementById('listloading');
           codelist.removeChild(listloader);
           noLinks();
           return false;
@@ -122,8 +125,6 @@
         // Make sure something exists
         if (res.length > 0) {
           
-          // Clear loading text
-          const listloader = document.getElementById('listloading');
           // Removing loading text
           codelist.removeChild(listloader);
 
@@ -161,7 +162,6 @@
                   setTimeout(() => {
                     caption.innerHTML = captionText;
                   }, 1500);
-
                 });
               }
               catch(err) {
@@ -174,6 +174,9 @@
             const visit = container.querySelector('.visitlink');
             visit.href = `${siteUrl}/${code}`;
             visit.querySelector('code').innerText = href;
+
+            const created_at = new Date(d.created_at);
+            container.querySelector('.createtime').innerText = created_at.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric'});
 
             // Delete button
             const del = container.querySelector('.delcode');
@@ -218,7 +221,7 @@
                 caption.innerHTML = failMsg;
               }
 
-              // Clear message, write default caption text again
+              // Reinstate default message
               setTimeout(() => {
                 caption.innerHTML = captionText;
               }, 1500);
@@ -231,6 +234,7 @@
         }
         // Display no links message
         else {
+          codelist.removeChild(listloader);
           noLinks();
         }
       });
