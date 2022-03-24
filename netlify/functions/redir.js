@@ -15,25 +15,6 @@ const supabase = createClient(
   process.env.SUPABASE_KEY,
 );
 
-// Get URL details from Supabase
-async function getUrlDetails(short) {
-
-  const {
-    data,
-    error
-  } = await supabase
-    .from(process.env.SUPABASE_TABLE)
-    .select('short, long, disabled')
-    .eq('short', short)
-    // Only get a link that is enabled
-    .is('disabled', false)
-    // Make sure only one is returned
-    .single()
-
-  return (error !== null) ? null : data;
-
-};
-
 /**
  * Main
  */
@@ -54,23 +35,27 @@ exports.handler = async (event) => {
    * appended to the short URL (plus queryStringParameters).
    */
   const {
-    path,
-    queryStringParameters,
-    rawQuery
+    path
   } = event;
-  
-  // Remove leading /
-  const short = path.slice(1);
-  
-  // Get details
-  const urlDetails = await getUrlDetails(short);
 
-  // console.log(urlDetails)
+  const {
+    data,
+    error
+  } = await supabase
+    .from(process.env.SUPABASE_TABLE)
+    .select('short, long, disabled')
+    .eq('short', path.slice(1))
+    // Only get a link that is enabled
+    .is('disabled', false)
+    // Make sure only one is returned
+    .single()
 
   /**
    * Return error page
    */
   if (urlDetails === null) {
+
+    console.log(error);
 
     return {
       statusCode: 404,
@@ -97,69 +82,13 @@ exports.handler = async (event) => {
   }
 
   /**
-   * Re: `toUrl`
-   * 
-   * This mimics (as best possible), the behaviour of redirects on Netlify.
-   * If the long URL contains a search string, any search string appended to
-   * the short URL is dropped. If a long URL does not contain a search string
-   * any search string on the short URL is appended to the long URL prior to
-   * redirecting.
-   * 
-   * Example:
-   * Long:   https://example.com?some=value&and=another
-   * Short:  https://fyd.lig/short?this=value&that=thing
-   * Redirects to: https://example.com?some=value&and=another
-   * 
-   * Example:
-   * Long:   https://example.com
-   * Short:  https://fyd.li/short?some=value&and=another&this=value&that=thing
-   * Redirects to: https://example.com?some=value&and=another&this=value&that=thing
-   * 
-   * It is possible to append query strings, but this requires defining them in
-   * the _redirects file e.g.
-   * 
-   * /short   some=:q and=:a   https://example.com?some=:q&and=:a
-   * 
-   * such that
-   * https://fyd.li/short?some=thing&and=another
-   * is redirected to
-   * https://example.com/?some=thing&and=another
-   * 
-   * If these query strings are present on the short URL, the redirect will in
-   * turn fail because they are required conditions.
-   * 
-   * While it is possible to have `toUrl` account for these and the build script
-   * to generate these rules (and alternate rules for when they fail) it also
-   * requires a more complex form and function for submitting links. This I have
-   * made (and use) elsewhere, but for the purposes of this site, I feel keeping
-   * things simple is best.
-   * 
-   * Best practice: Don't submit a long URL that has a search string to allow
-   *     adding search strings to a short URL that will work.
-   */
-  const toUrl = (() => {
-
-    // Original long URL does not have a search string in it
-    if (!urlDetails.long.includes('?') && rawQuery.length > 0) {
-
-      // Append rawQuerty to long URL
-      return long.concat('?', rawQuery);
-
-    }
-
-    // There is a search in the original long URL
-    return long;
-
-  })({ long } = urlDetails, queryStringParameters, rawQuery);
-
-  /**
    * Return with location header
    * plus fallback html
    */
   return {
-    statusCode: 302,
+    statusCode: 301,
     headers: {
-      location: toUrl,
+      location: data.long,
     },
     body: `<!DOCTYPE html>
     <html lang="en">
@@ -168,13 +97,13 @@ exports.handler = async (event) => {
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width">
         <link rel="stylesheet" type="text/css" href="/assets/styles.css">
-        <meta http-equiv="refresh" content="0; url=${toUrl}">
+        <meta http-equiv="refresh" content="0; url=${data.long}">
       </head>
       <body>
         <main>
           <h1>${process.env.SITE_TITLE}</h1>
-          <p>Redirecting to <code>${toUrl}</code>.</p>
-          <script>window.location = ${toUrl}</script>
+          <p>Redirecting to <code>${data.long}</code>.</p>
+          <script>window.location = ${data.long}</script>
         </main>
       </body>
     </html>`
