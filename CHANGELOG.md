@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v0.2.25
+
+- Added `BLOCK_DOMAINS` as an *optional* environment variables for a comma separated list of domains to reject along with domain checking in `new-link.js`. Updated README.md.
+- `redir.js` from `v0.3.x`
+- Now show created date on **Manage Links** page.
+
 ## v0.2.2
 
 Safari < 15.4 does not support `crypto.randomUUID()` *(is in development in 15.4 see [MDN `Crypto.randomUUID`](https://fyd.li/zPLa).)* This breaks functionality of the site on a large number of macOS and iOS devices. `fydliID` will now retrieve a UUID from a function when `typeof crypto.randomUUID === "function"` is `false`. This *(potentially)* opens access to many more users.

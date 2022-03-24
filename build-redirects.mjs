@@ -36,7 +36,6 @@ async function getAllUrls() {
     // Only get links that aren't disabled.
     .is('disabled', false)
 
-  // console.log(error);
   return (error !== null) ? error : data;
 }
 

@@ -127,6 +127,12 @@ MAIN_PAGE=shorten
 
 If this is run as a private shortener, you could entirely remove the `index.html` (modifying `build-site.js` to remove the rename) and functions other than `redir.js`. To add URLs, you could (would) run a version locally using Netlify CLI to add new URLs.
 
+```
+BLOCK_DOMAINS=localhost,example.com
+```
+
+Comma separated list of domains not accepted as long URL values.
+
 ### Other Environment Variables
 
 [Built-in environment variables](https://docs.netlify.com/configure-builds/environment-variables/#read-only-variables) are also utilised. These are `URL`, and `SITE_ID`.
