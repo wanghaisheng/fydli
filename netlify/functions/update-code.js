@@ -14,9 +14,6 @@ const supabase = createClient(
   process.env.SUPABASE_KEY, // Public key
 );
 
-// Without slash at end e.g. https://example.com
-const baseUrl = process.env.URL;
-
 /**
  * Main function
  */
@@ -36,7 +33,6 @@ exports.handler = async (event) => {
   // Short URL to update
   const { short, userId } = JSON.parse(event.body);
 
-  // console.log(short, ' : ', userId);
   const {
     data,
     error
@@ -60,7 +56,8 @@ exports.handler = async (event) => {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        updated: true
+        updated: true,
+        message: "Link disabled"
       })
     };
     
