@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width">
     <link rel="stylesheet" type="text/css" href="/assets/styles.css">
     <meta name="robots" content="index, nofollow, noarchive">
+    <meta name="referrerpolicy" content="no-referrer">
     <!--
       favicon assest via https://favicon.io
     -->
@@ -29,6 +30,7 @@
           <thead>
             <tr>
               <th>Short</th>
+              <th>QR Code</th>
               <th>Long</th>
               <th>Created</th>
               <th>Disable</th>
@@ -51,19 +53,24 @@
 
     <template id="codeLink">
       <tr>
-        <td>
+        <td class="sCode">
           <a
             class="shortcode"
             role="link"
-          ><code></code></a>
+            aria-roledescription="Press Enter to copy link to clipboard"
+            tabindex="0"
+          ></a>
         </td>
-        <td><a class="visitlink" href="" target="_blank"><code></code></a></td>
+        <td class="qrCode"><a class="vqrcode" href="" target="_blank">view</a>|<a class="dlqrcode" href="">DL</a></td>
+        <td class="visit"><a class="visitlink" href="" target="_blank"><code></code></a></td>
         <td class="createtime"></td>
-        <td>
+        <td class="disable">
           <a
             class="delcode"
             role="button"
-          ><code>X</code></a>
+            aria-roledescription="Disable a short URL"
+            tabindex="0"
+          >X</a>
         </td>
       </tr>
     </template>
@@ -89,6 +96,80 @@
         td.innerHTML = noCodesMsg;
         tr.appendChild(td);
         codelist.appendChild(tr);
+      };
+      // Copy Short URL
+      copyShortLink = (e) => {
+        if (e.code === "Enter" || e.type === "click") {
+          // The short link
+          const code = e.target.dataset.shortCode;
+          const sl = `${siteUrl}/${code}`;
+          // Wrap in a try/catch in the off chance clipboard events disabled
+          try {
+            // Write to clipboard
+            navigator.clipboard.writeText(sl).then(res => {
+
+              // Display success message
+              const msg = `<strong>${sl}</strong> copied to clipboard successfully`;
+              const caption = document.querySelector('caption');
+              caption.innerHTML = msg;
+
+              // Clear message, write default caption text again
+              setTimeout(() => {
+                caption.innerHTML = captionText;
+              }, 1500);
+            });
+          }
+          catch(err) {
+            alert(`Unable to copy ${sl} to clipboard.`);
+            console.log(err);
+          }
+        }
+      };
+      disableShortCode = async (e) => {
+        if (e.code === "Enter" || e.type === "click"){
+          // For UI feedback
+          const code = e.target.dataset.shortCode
+          const successMsg = `<strong>${code}</strong> successfully disabled.`;
+          const failMsg = `Error disabling <strong>${code}</strong>.`;
+          const caption = document.querySelector('caption');
+
+          // Send request to Supabase
+          const response = await fetch('/app/update-code', {
+            method: "POST",
+            body: JSON.stringify({
+                short: code,
+                userId: fydliID
+            })
+          });
+
+          // JSON data
+          const data = await response.json();
+
+          // If response is good
+          if (data.updated === true) {
+            // Remove link element from list.
+            const list = document.getElementById('codelist');
+            const item = document.getElementById('code-'.concat(code));
+            list.removeChild(item);
+            // Display success message
+            caption.innerHTML = successMsg;
+            // No more links?
+            if (list.children.length === 0) {
+              list.innerText = noCodesMsg
+            }
+          }
+          // Response bad.
+          else {
+            // Display error message
+            console.log("Error: ", data.message);
+            caption.innerHTML = failMsg;
+          }
+
+          // Reinstate default message
+          setTimeout(() => {
+            caption.innerHTML = captionText;
+          }, 1500);
+        }
       };
       // link item template
       const template = document.querySelector('#codeLink');
@@ -142,38 +223,23 @@
             const short = container.querySelector('.shortcode');
             // link.href = '/'.concat(code);
             short.dataset.shortCode = code;
-            short.querySelector('code').innerText = code;
+            short.innerText = code;
 
             // Copy to clipboard function
-            short.addEventListener('click', () => {
-              // The short link
-              const sl = `${siteUrl}/${code}`;
-              // Wrap in a try/catch in the off chance clipboard events disabled
-              try {
-                // Write to clipboard
-                navigator.clipboard.writeText(sl).then(res => {
-
-                  // Display success message
-                  const msg = `<strong>${sl}</strong> copied to clipboard successfully`;
-                  const caption = document.querySelector('caption');
-                  caption.innerHTML = msg;
-
-                  // Clear message, write default caption text again
-                  setTimeout(() => {
-                    caption.innerHTML = captionText;
-                  }, 1500);
-                });
-              }
-              catch(err) {
-                alert(`Unable to copy ${sl} to clipboard.`);
-                console.log(err);
-              }
-            });
+            short.addEventListener('click', copyShortLink);
+            // Keyboard copy support.
+            short.addEventListener('keydown', copyShortLink);
             
+            // Show the long link too; visit using short URL
+            const vqrcode = container.querySelector('.vqrcode');
+            vqrcode.href = `/qr/${code}`;
+            const dlqrcode = container.querySelector('.dlqrcode');
+            dlqrcode.href = `/qr/dl/${code}`;
+
             // Show the long link too; visit using short URL
             const visit = container.querySelector('.visitlink');
             visit.href = `${siteUrl}/${code}`;
-            visit.querySelector('code').innerText = href;
+            visit.querySelector('code').innerText = href.replace('https://','');
 
             const created_at = new Date(d.created_at);
             container.querySelector('.createtime').innerText = created_at.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric'});
@@ -183,54 +249,13 @@
             del.dataset.shortCode = code;
 
             // Add a delete button
-            del.addEventListener('click', async () => {
-              // For UI feedback
-              const successMsg = `<strong>${code}</strong> successfully disabled.`;
-              const failMsg = `Error disabling <strong>${code}</strong>.`;
-              const caption = document.querySelector('caption');
-
-              // Send request to Supabase
-              const response = await fetch('/app/update-code', {
-                method: "POST",
-                body: JSON.stringify({
-                    short: code,
-                    userId: fydliID
-                })
-              });
-
-              // JSON data
-              const data = await response.json();
-
-              // If response is good
-              if (data.updated === true) {
-                // Remove link element from list.
-                const list = document.getElementById('codelist');
-                const item = document.getElementById('code-'.concat(code));
-                list.removeChild(item);
-                // Display success message
-                caption.innerHTML = successMsg;
-                // No more links?
-                if (list.children.length === 0) {
-                  list.innerText = noCodesMsg
-                }
-              }
-              // Response bad.
-              else {
-                // Display error message
-                console.log("Error: ", data.message);
-                caption.innerHTML = failMsg;
-              }
-
-              // Reinstate default message
-              setTimeout(() => {
-                caption.innerHTML = captionText;
-              }, 1500);
-            });
+            del.addEventListener('click', disableShortCode);
+            del.addEventListener('keydown', disableShortCode);
 
             // Append node to display element
             codelist.appendChild(container);
 
-          });
+          })
         }
         // Display no links message
         else {

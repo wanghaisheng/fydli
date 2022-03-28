@@ -37,6 +37,7 @@ async function saveToSupabase(long, short, userId) {
   if (data !== null) {
     return true;
   }
+  console.log("New Link error: ", error)
   return false
 }
 
@@ -120,6 +121,7 @@ exports.handler = async event => {
    * Don't try shortening a short link
    */
    const domain = baseUrl.replace(/https?:\/\//,'')
+   
    if (long_url.includes(domain)) {
  
      return {

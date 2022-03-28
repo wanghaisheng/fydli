@@ -9,13 +9,10 @@
   command = "npm run build"
   publish = "site"
 
-  # Defining non-sensitive environment variables here is possible e.g
+  # Defining non-sensitive environment variables here is possible
+  # as long as the aren't required in a function.
   # [build.environment]
-  #   PUBLIC_SITE = "true"
-  #   MAIN_PAGE = "makeitshort"
-  #   SHORT_URL_LENGTH = 5
-  #   SHORT_URL_CHARS = "1234567890abcdefABCDEF"
-  #   SITE_TITLE = "FYDLI"
+  #   VARIABLE = "value"
 
 # Using `import` so need `esbuild`
 [functions]
@@ -39,7 +36,7 @@
     X-Frame-Options = "DENY"
     X-XSS-Protection = "1; mode=block"
     Content-Security-Policy = "base-uri 'self'; script-src 'self' 'nonce-9fe3abc61d7a'; style-src 'self' 'nonce-9fe3abc61d7a'; img-src 'self'; object-src 'self'; frame-ancestors 'none'"
-    Referrer-Policy = "same-origin"
+    Referrer-Policy = "no-referrer"
     X-Robots-Tag = "noindex, nofollow, noarchive, nosnippet, notranslate"
 
 #
@@ -48,6 +45,12 @@
 # No redirects are "forced", so if a path exists that is equal to that of a
 # redirect, the path content is served.
 # 
+
+# QR Code generator.
+[[redirects]]
+  from = "/qr/*"
+  to = "/.netlify/functions/qrcode"
+  status = 200
 
 # Functions rewrite.
 [[redirects]]

@@ -77,6 +77,10 @@ a {
 a:hover {
   text-decoration: underline dashed;
 }
+a:focus {
+  background-color: var(--fgColour);
+  color: var(--bgColour);
+}
 /**
  * Forms
  */
@@ -193,7 +197,15 @@ button:active {
   font-weight: 400;
   width: 80vw;
   max-width: 800px;
+  height: 40px;
   text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+#result .qrlink,
+#result strong {
+  margin: 0 1rem;
 }
 footer {
   display: flex;
@@ -232,11 +244,20 @@ footer .copyright p {
  */
 #linklist table {
   width: 90vw;
-  max-width: 800px;
+  max-width: 1024px;
 }
-table th,
-table td {
+th,
+td {
   text-align: left;
+  padding: 0.15rem 0.5rem;
+}
+th {
+  background-color: var(--fgColour);
+  color: var(--bgColour);
+  /* padding: 0.15rem 0.5rem; */
+}
+td.disable {
+  text-align: center;
 }
 #result a,
 #codelist a {
@@ -246,4 +267,13 @@ caption {
   margin-bottom: 1rem;
   font-style: italic;
   min-height: 2.5rem;
+}
+td a {
+  font-weight: normal;
+}
+@media screen and (max-width: 600px) {
+  #linklist table th,
+  #linklist table td {
+    display: block;
+  }  
 }

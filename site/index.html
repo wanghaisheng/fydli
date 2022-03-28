@@ -114,6 +114,29 @@
         const result = document.getElementById('result');
         result.innerHTML = "Working...";
 
+        copyShortLink = () => {
+          if (e.code === "Enter" || e.type === "click"){
+            // Link
+            const link = e.target.innerText;
+            // Parent element
+            const pe = e.target.parentElement;
+            // Wrap in a try/catch in the off chance clipboard events disabled
+            try {
+              // Write to clipboard
+              navigator.clipboard.writeText(link)
+              .then(res=>{
+                // Write success message to parent element
+                pe.innerHTML = `<strong>${link}</strong> copied to clipboard successfully`;
+              });
+            }
+            // Clipboard events unavailable
+            catch(err) {
+              alert(`Unable to copy ${link} to clipboard.`);
+              console.log(err);
+            }
+          }
+        };
+        
         fetch("/app/new-link", {
           method: "POST",
           headers: {
@@ -126,29 +149,16 @@
         })
         .then(res => res.json())
         .then(d => {
-          if (d.created === true){
-            result.innerHTML = `Copy to clipboard: <a>${d.short_url}</a>`;
+          if (d.created === true) {
+            // Set image colours inverse of colour scheme
+            // (dark = foreground, light = background)
+            const imgColors = (window.matchMedia('(prefers-color-scheme: light)').matches === true) ? 'dark=fafafa,light=202020':'dark=202020,light=fafafa';
+            // Output
+            result.innerHTML = `<a class="qrlink" href="/qr/dl/${d.code}" title="Download QR Code"><img src="/qr/width=40,${imgColors}/${d.code}" width="40" height="40"></a> <span>Copy to clipboard: <a id="shortLink" tabindex="0">${d.short_url}</a></span>`;
             // Copy to clipboard event listener
-            result.querySelector('a').addEventListener('click', (e) => {
-              // Link
-              const link = e.target.innerText;
-              // Parent element
-              const pe = e.target.parentElement;
-              // Wrap in a try/catch in the off chance clipboard events disabled
-              try {
-                // Write to clipboard
-                navigator.clipboard.writeText(link)
-                .then(res=>{
-                  // Write success message to parent element
-                  pe.innerHTML = `<strong>${link}</strong> copied to clipboard successfully`;
-                });
-              }
-              // Clipboard events unavailable
-              catch(err) {
-                alert(`Unable to copy ${link} to clipboard.`);
-                console.log(err);
-              }
-            });
+            result.querySelector('a#shortLink').addEventListener('click', copyShortLink);
+            // keyboard copy to clipboard
+            result.querySelector('a#shortLink').addEventListener('keydown', copyShortLink);
           }
           else {
             result.innerHTML = d.message;

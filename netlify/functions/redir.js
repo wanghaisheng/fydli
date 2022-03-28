@@ -78,6 +78,10 @@ exports.handler = async (event) => {
     }
   }
 
+  // Supabase functions are currently Alpha
+  // Adding this to see how it performs.
+  await supabase.rpc('fydliclick', { short_code: data.short });
+
   // Valid short. Redirect.
   return {
     statusCode: 301,

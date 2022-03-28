@@ -1,5 +1,24 @@
 # CHANGELOG
 
+## v0.3.2
+
+### Now With QR Codes!
+
+Get a QR code when link is created and click to download it. Also view/download QR codes on the [*Manage Links*](https://fyd.li/manaage) page. Also customise images with `width`, and `dark` *(foreground)* and `light` *(background)* colours *(zero or more parameters)*
+- Base image: `/qr/[code]`;
+- Base download: `/qr/dl/[code]`;
+- Custom image: `/qr/width=1000,dark=FF00FF,light=00FF00/[code]`;
+- Custom image download: `/qr/dl/width=1000,dark=FF00FF,light=00FF00/[code]`.
+
+### Keyboard Events
+
+As well as click events for copying, and disabling links, keyboard *(`keydown` using **Enter**)* is now available on the shorten and manage pages.
+
+### Other Bits
+- Added click tracking test to `redir.js` using Supabase function. Functions are in *Alpha* still. Not active on front-end yet;
+- Fixed `terms.html`;
+- Minor styling tweaks *(attempted to improve mobile styling on manage page)*;
+
 ## v0.3.1
 
 Removal of `test.js` and ability to add query paramaters *(**e.g.** `?this=thing&that=too`)* onto short URLs. Any parameters appended to a short code are now dropped and the original long URL is used.
