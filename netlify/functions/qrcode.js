@@ -109,7 +109,7 @@ exports.handler = async (event) => {
     });
   }
 
-  return QRCode.toDataURL(process.env.URL.concat(code), opts)
+  return QRCode.toDataURL(process.env.URL.concat("/",code), opts)
   .then(url => {
     let headers = {
       "Content-Type": "image/png",
