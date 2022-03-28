@@ -42,7 +42,7 @@ exports.handler = async (event) => {
 
   // Get path
   const { path } = event;
-  const domain = 'process.env.URL'.replace('https://','');
+  const domain = process.env.URL.replace('https://','');
   let isDownload = false;
   // Slice `/qr/` from it, split into Array.
   const args = path.slice(4).split('/').filter(a => a !== "");
