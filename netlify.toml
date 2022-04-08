@@ -38,7 +38,9 @@
     Content-Security-Policy = "base-uri 'self'; script-src 'self' 'nonce-9fe3abc61d7a'; style-src 'self' 'nonce-9fe3abc61d7a'; img-src 'self'; object-src 'self'; frame-ancestors 'none'"
     Referrer-Policy = "no-referrer"
     X-Robots-Tag = "noindex, nofollow, noarchive, nosnippet, notranslate"
-
+    Link = '<https://fyd.li/assets/styles.css>; rel="preload"; as="style"'
+    Strict-Transport-Security = "max-age=31536000; includeSubDomains; preload"
+  
 #
 # REMEMBER:
 # `_redirects` is processed first, followed by `redirects` in netlify.toml
