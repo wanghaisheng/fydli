@@ -86,7 +86,8 @@ exports.handler = async (event) => {
   return {
     statusCode: 301,
     headers: {
-      location: data.long,
+      "Referrer-Policy": "no-referrer",
+      Location: data.long,
     },
     body: `<!DOCTYPE html>
     <html lang="en">
